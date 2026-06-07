@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Catálogo – Torito Delivery</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --rojo: #E31837;
+    --rojo-dark: #B01228;
+    --amarillo: #FFD700;
+    --bg: #F5F5F5;
+    --card: #FFFFFF;
+    --texto: #1A1A1A;
+    --gris: #6B6B6B;
+    --borde: #E8E8E8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    color: var(--texto);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--rojo);
+    color: white;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+  header h1 {
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+  }
+  header h1 span { color: var(--amarillo); }
+  .cart-btn {
+    background: white;
+    color: var(--rojo);
+    border: none;
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .cart-count {
+    background: var(--amarillo);
+    color: #1A1A1A;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+  }
+
+  /* BÚSQUEDA */
+  .search-wrap {
+    padding: 12px 16px;
+    background: white;
+    border-bottom: 1px solid var(--borde);
+  }
+  .search-wrap input {
+    width: 100%;
+    padding: 10px 14px 10px 38px;
+    border: 1.5px solid var(--borde);
+    border-radius: 24px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    outline: none;
+    background: var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%236B6B6B' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.099zm-5.242 1.656a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11z'/%3E%3C/svg%3E") no-repeat 12px center;
+    transition: border-color 0.2s;
+  }
+  .search-wrap input:focus { border-color: var(--rojo); }
+
+  /* ESTADO */
+  .status {
+    text-align: center;
+    padding: 32px 16px;
+    color: var(--gris);
+    font-size: 14px;
+  }
+  .spinner {
+    width: 32px; height: 32px;
+    border: 3px solid var(--borde);
+    border-top-color: var(--rojo);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin: 0 auto 12px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* LISTA DE PRODUCTOS */
+  .product-list {
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .product-card {
+    background: var(--card);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    border: 1px solid var(--borde);
+    animation: fadeUp 0.3s ease forwards;
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .product-img {
+    width: 72px;
+    height: 72px;
+    object-fit: contain;
+    border-radius: 10px;
+    background: var(--bg);
+    flex-shrink: 0;
+  }
+  .product-img-placeholder {
+    width: 72px;
+    height: 72px;
+    border-radius: 10px;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    flex-shrink: 0;
+  }
+  .product-info { flex: 1; min-width: 0; }
+  .product-name {
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 4px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .product-price {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--rojo);
+  }
+  .add-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--rojo);
+    color: white;
+    border: none;
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .add-btn:active { transform: scale(0.9); background: var(--rojo-dark); }
+  .qty-ctrl {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .qty-ctrl button {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    border: 2px solid var(--rojo);
+    background: white;
+    color: var(--rojo);
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    transition: background 0.15s;
+  }
+  .qty-ctrl button:active { background: #ffe0e5; }
+  .qty-num {
+    font-weight: 800;
+    font-size: 15px;
+    min-width: 20px;
+    text-align: center;
+  }
+
+  /* CARRITO MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 200;
+    align-items: flex-end;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: white;
+    border-radius: 24px 24px 0 0;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 20px 16px 32px;
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp { from { transform: translateY(100%); } }
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  .modal-header h2 { font-size: 18px; font-weight: 800; }
+  .close-btn {
+    background: var(--bg);
+    border: none;
+    border-radius: 50%;
+    width: 32px; height: 32px;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--borde);
+    gap: 8px;
+  }
+  .cart-item-name { font-size: 13px; font-weight: 600; flex: 1; }
+  .cart-item-price { font-size: 13px; color: var(--rojo); font-weight: 800; white-space: nowrap; }
+  .cart-total {
+    display: flex;
+    justify-content: space-between;
+    padding: 14px 0 0;
+    font-weight: 800;
+    font-size: 16px;
+  }
+  .whatsapp-btn {
+    display: block;
+    width: 100%;
+    margin-top: 16px;
+    background: #25D366;
+    color: white;
+    border: none;
+    border-radius: 14px;
+    padding: 14px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+  .whatsapp-btn:active { background: #1aab52; }
+  .empty-cart {
+    text-align: center;
+    color: var(--gris);
+    padding: 24px 0;
+    font-size: 14px;
+  }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: #1A1A1A;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 24px;
+    font-size: 13px;
+    font-weight: 600;
+    z-index: 300;
+    transition: transform 0.3s ease;
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🐂 Torito <span>Delivery</span></h1>
+  <button class="cart-btn" onclick="openCart()">
+    🛒 Mi pedido
+    <span class="cart-count" id="cartCount">0</span>
+  </button>
+</header>
+
+<div class="search-wrap">
+  <input type="text" id="searchInput" placeholder="Buscar producto..." oninput="filterProducts()">
+</div>
+
+<div id="statusMsg" class="status">
+  <div class="spinner"></div>
+  Cargando catálogo...
+</div>
+
+<div class="product-list" id="productList"></div>
+
+<!-- CARRITO MODAL -->
+<div class="modal-overlay" id="cartModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>🛒 Mi pedido</h2>
+      <button class="close-btn" onclick="closeCart()">✕</button>
+    </div>
+    <div id="cartItems"></div>
+    <div id="cartFooter"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+  const SHOP = 'toritoperote.com.mx';
+  let allProducts = [];
+  let cart = {};
+
+  async function loadProducts() {
+    try {
+      let products = [];
+      let page = 1;
+      // Carga hasta 3 páginas (750 productos)
+      while (page <= 3) {
+        const res = await fetch(`https://${SHOP}/products.json?limit=250&page=${page}`);
+        const data = await res.json();
+        if (!data.products || data.products.length === 0) break;
+        products = products.concat(data.products);
+        if (data.products.length < 250) break;
+        page++;
+      }
+      allProducts = products;
+      document.getElementById('statusMsg').style.display = 'none';
+      renderProducts(allProducts);
+    } catch(e) {
+      document.getElementById('statusMsg').innerHTML = '⚠️ Error al cargar. Intenta de nuevo.';
+    }
+  }
+
+  function renderProducts(products) {
+    const list = document.getElementById('productList');
+    list.innerHTML = '';
+    if (products.length === 0) {
+      list.innerHTML = '<div class="status">No se encontraron productos.</div>';
+      return;
+    }
+    products.forEach((p, i) => {
+      const variant = p.variants[0];
+      const price = parseFloat(variant.price).toFixed(2);
+      const img = p.images[0] ? p.images[0].src : null;
+      const qty = cart[variant.id] ? cart[variant.id].qty : 0;
+
+      const card = document.createElement('div');
+      card.className = 'product-card';
+      card.style.animationDelay = Math.min(i * 30, 300) + 'ms';
+      card.innerHTML = `
+        ${img
+          ? `<img class="product-img" src="${img}" alt="${p.title}" loading="lazy">`
+          : `<div class="product-img-placeholder">🛒</div>`}
+        <div class="product-info">
+          <div class="product-name">${p.title}</div>
+          <div class="product-price">$${price}</div>
+        </div>
+        <div id="ctrl_${variant.id}">
+          ${qty === 0
+            ? `<button class="add-btn" onclick="addToCart('${variant.id}','${escHtml(p.title)}',${price})">+</button>`
+            : `<div class="qty-ctrl">
+                <button onclick="decrease('${variant.id}')">−</button>
+                <span class="qty-num">${qty}</span>
+                <button onclick="increase('${variant.id}')">+</button>
+               </div>`}
+        </div>
+      `;
+      list.appendChild(card);
+    });
+  }
+
+  function escHtml(str) {
+    return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+  }
+
+  function filterProducts() {
+    const q = document.getElementById('searchInput').value.toLowerCase().trim();
+    const filtered = q ? allProducts.filter(p => p.title.toLowerCase().includes(q)) : allProducts;
+    renderProducts(filtered);
+  }
+
+  function addToCart(id, name, price) {
+    cart[id] = { name, price, qty: 1 };
+    updateCartCount();
+    refreshCtrl(id);
+    showToast('✅ Agregado al pedido');
+  }
+
+  function increase(id) {
+    if (cart[id]) { cart[id].qty++; updateCartCount(); refreshCtrl(id); }
+  }
+
+  function decrease(id) {
+    if (cart[id]) {
+      cart[id].qty--;
+      if (cart[id].qty <= 0) delete cart[id];
+      updateCartCount();
+      refreshCtrl(id);
+    }
+  }
+
+  function refreshCtrl(id) {
+    const el = document.getElementById('ctrl_' + id);
+    if (!el) return;
+    const item = cart[id];
+    if (!item || item.qty === 0) {
+      const p = allProducts.find(p => p.variants[0].id == id || p.variants[0].id === id);
+      const name = p ? escHtml(p.title) : '';
+      const price = p ? parseFloat(p.variants[0].price) : 0;
+      el.innerHTML = `<button class="add-btn" onclick="addToCart('${id}','${name}',${price})">+</button>`;
+    } else {
+      el.innerHTML = `<div class="qty-ctrl">
+        <button onclick="decrease('${id}')">−</button>
+        <span class="qty-num">${item.qty}</span>
+        <button onclick="increase('${id}')">+</button>
+      </div>`;
+    }
+  }
+
+  function updateCartCount() {
+    const total = Object.values(cart).reduce((s, i) => s + i.qty, 0);
+    document.getElementById('cartCount').textContent = total;
+  }
+
+  function openCart() {
+    const items = Object.entries(cart);
+    const container = document.getElementById('cartItems');
+    const footer = document.getElementById('cartFooter');
+
+    if (items.length === 0) {
+      container.innerHTML = '<div class="empty-cart">🛒 Tu pedido está vacío</div>';
+      footer.innerHTML = '';
+    } else {
+      let total = 0;
+      container.innerHTML = items.map(([id, item]) => {
+        const subtotal = item.price * item.qty;
+        total += subtotal;
+        return `<div class="cart-item">
+          <span class="cart-item-name">${item.name} × ${item.qty}</span>
+          <span class="cart-item-price">$${subtotal.toFixed(2)}</span>
+        </div>`;
+      }).join('');
+
+      const msg = encodeURIComponent(
+        '🐂 *Pedido Torito Delivery*\n\n' +
+        items.map(([id, i]) => `• ${i.name} × ${i.qty} = $${(i.price * i.qty).toFixed(2)}`).join('\n') +
+        `\n\n*Total: $${total.toFixed(2)}*\n\n¡Por favor confirmar mi pedido! 🙏`
+      );
+
+      footer.innerHTML = `
+        <div class="cart-total">
+          <span>Total</span>
+          <span>$${total.toFixed(2)}</span>
+        </div>
+        <a class="whatsapp-btn" href="https://wa.me/522821073249?text=${msg}" target="_blank">
+          📲 Enviar pedido por WhatsApp
+        </a>
+      `;
+    }
+    document.getElementById('cartModal').classList.add('open');
+  }
+
+  function closeCart() {
+    document.getElementById('cartModal').classList.remove('open');
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
+  }
+
+  // Cerrar modal al tocar overlay
+  document.getElementById('cartModal').addEventListener('click', function(e) {
+    if (e.target === this) closeCart();
+  });
+
+  loadProducts();
+</script>
+</body>
+</html>
